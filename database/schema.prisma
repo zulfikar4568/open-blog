@@ -1,0 +1,125 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures=["interactiveTransactions", "fullTextSearch"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id                  Int @id @default(autoincrement())
+  email               String @db.VarChar(50) @unique
+  imageUrl            String?
+  phoneNumber         String?
+  password            String
+  roles               Role[] @default(value: [USER])
+
+  comments            Comment[]
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("users")
+}
+
+
+model Post {
+  id                  Int @id @default(autoincrement())
+  title               String @db.VarChar(50)
+  imageCover          String?
+  summary             String?
+  postContents        String?
+  lastRead            DateTime
+  counterLike         Int @db.Integer()
+
+  tags                PostTag[]
+  categories          PostCategory[]
+  comments            Comment[]
+
+  isPublished         Boolean?
+  updatedAt           DateTime @updatedAt()
+  createdAt           DateTime @default(now())
+
+  @@map("maps")
+}
+
+model PostTag {
+  postId              Int @db.Integer()
+  post                Post @relation(fields: [postId], references: [id])
+  tagId               Int @db.Integer()
+  tag                 Tag @relation(fields: [tagId], references: [id])
+
+  updatedAt           DateTime @updatedAt()
+  createdAt           DateTime @default(now())
+
+  @@id([postId, tagId])
+  @@map("posts_tags")
+}
+
+model Tag {
+  id                  Int @id @default(autoincrement())
+  name                String @db.VarChar(50)
+  description         String
+
+  posts               PostTag[]
+
+  updatedAt           DateTime @updatedAt()
+  createdAt           DateTime @default(now())
+
+  @@map("tags")
+}
+
+model PostCategory {
+  postId              Int @db.Integer()
+  post                Post @relation(fields: [postId], references: [id])
+  categoryId          Int @db.Integer()
+  category            Category @relation(fields: [categoryId], references: [id])
+
+  updatedAt           DateTime @updatedAt()
+  createdAt           DateTime @default(now())
+
+  @@id([postId, categoryId])
+  @@map("posts_categories")
+}
+
+model Category {
+  id                  Int @id @default(autoincrement())
+  name                String @db.VarChar(50)
+  description         String
+
+  posts               PostCategory[]
+
+  updatedAt           DateTime @updatedAt()
+  createdAt           DateTime @default(now())
+
+  @@map("categories")
+}
+
+model Comment {
+  id                  Int @id @default(autoincrement())
+  commentContents     String
+
+  postId              Int @db.Integer()
+  post                Post @relation(fields: [postId], references: [id])
+  userId              Int @db.Integer()
+  user                User @relation(fields: [userId], references: [id])
+
+  parent_id           Int @db.Integer()
+  parent              Comment? @relation("CommentParentChilds", fields: [parent_id], references: [id])
+  childs              Comment[] @relation("CommentParentChilds")
+
+  updatedAt           DateTime @updatedAt()
+  createdAt           DateTime @default(now())
+
+  @@map("comments")
+}
