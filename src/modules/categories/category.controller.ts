@@ -15,21 +15,14 @@ import CreateCategoryResponse from './serializers/create-category.response';
 import DeleteCategoryResponse from './serializers/delete-category.response';
 import GetCategoryResponse from './serializers/get-category.response';
 import UpdateCategoryResponse from './serializers/update-category.response';
-import CreateCategoryValidator, {
-  CreateCategoryBodyValidator,
-} from './validators/create-category.validator';
-import DeleteCategoryValidator, {
-  DeleteCategoryParamsValidator,
-} from './validators/delete-category.validator';
-import GetCategoryValidator, {
-  GetCategoryParamsValidator,
-} from './validators/get-category.validator';
-import UpdateCategoryValidator, {
+import { CreateCategoryBodyValidator } from './validators/create-category.validator';
+import { DeleteCategoryParamsValidator } from './validators/delete-category.validator';
+import { GetCategoryParamsValidator } from './validators/get-category.validator';
+import {
   UpdateCategoryBodyValidator,
   UpdateCategoryParamsValidator,
 } from './validators/update-category.validator';
 import SuccessResponse from '@/shared/responses/success.response';
-import Validator from '@/shared/decorators/validator.decorator';
 import Serializer from '@/shared/decorators/serializer.decorator';
 
 @ApiTags('Category')
@@ -48,7 +41,6 @@ export default class CategoryController {
 
   @Get('/:id')
   @HttpCode(HttpStatus.OK)
-  @Validator(GetCategoryValidator)
   @Serializer(GetCategoryResponse)
   public async getCategoryById(
     @Param() params: GetCategoryParamsValidator,
@@ -60,7 +52,6 @@ export default class CategoryController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @Validator(CreateCategoryValidator)
   @Serializer(CreateCategoryResponse)
   public async createCategory(
     @Body() body: CreateCategoryBodyValidator,
@@ -72,7 +63,6 @@ export default class CategoryController {
 
   @Patch('/:id')
   @HttpCode(HttpStatus.CREATED)
-  @Validator(UpdateCategoryValidator)
   @Serializer(UpdateCategoryResponse)
   public async updateCategory(
     @Param() params: UpdateCategoryParamsValidator,
@@ -85,7 +75,6 @@ export default class CategoryController {
 
   @Delete('/:id')
   @HttpCode(HttpStatus.CREATED)
-  @Validator(DeleteCategoryValidator)
   @Serializer(DeleteCategoryResponse)
   public async deleteCategory(
     @Param() params: DeleteCategoryParamsValidator,

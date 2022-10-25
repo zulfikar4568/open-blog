@@ -10,6 +10,7 @@ import UnknownExceptionsFilter from './shared/filters/unknown.filter';
 import HttpExceptionFilter from './shared/filters/http.filter';
 import ContextInterceptor from './shared/interceptors/context.interceptor';
 import log from './shared/utils/log.util';
+import ValidationPipe from './shared/pipes/validation.pipe';
 
 const httpServer = new Promise(async (resolve, reject) => {
   try {
@@ -23,6 +24,8 @@ const httpServer = new Promise(async (resolve, reject) => {
       credentials: true,
       origin: true,
     });
+
+    app.useGlobalPipes(new ValidationPipe());
 
     // Use Exception Filter
     app.useGlobalFilters(

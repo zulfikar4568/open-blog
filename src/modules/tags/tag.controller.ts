@@ -15,21 +15,14 @@ import DeleteTagResponse from './serializers/delete-tag.response';
 import GetTagResponse from './serializers/get-tag.response';
 import UpdateTagResponse from './serializers/update-tag.response';
 import { TagService } from './tag.service';
-import CreateTagValidator, {
-  CreateTagBodyValidator,
-} from './validators/create-tag.validator';
-import DeleteTagValidator, {
-  DeleteTagParamsValidator,
-} from './validators/delete-tag.validator';
-import GetTagValidator, {
-  GetTagParamsValidator,
-} from './validators/get-tag.validator';
-import UpdateTagValidator, {
+import { CreateTagBodyValidator } from './validators/create-tag.validator';
+import { DeleteTagParamsValidator } from './validators/delete-tag.validator';
+import { GetTagParamsValidator } from './validators/get-tag.validator';
+import {
   UpdateTagBodyValidator,
   UpdateTagParamsValidator,
 } from './validators/update-tag.validator';
 import SuccessResponse from '@/shared/responses/success.response';
-import Validator from '@/shared/decorators/validator.decorator';
 import Serializer from '@/shared/decorators/serializer.decorator';
 
 @ApiTags('Tag')
@@ -48,7 +41,6 @@ export default class TagController {
 
   @Get('/:id')
   @HttpCode(HttpStatus.OK)
-  @Validator(GetTagValidator)
   @Serializer(GetTagResponse)
   public async getTagById(
     @Param() params: GetTagParamsValidator,
@@ -60,7 +52,6 @@ export default class TagController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @Validator(CreateTagValidator)
   @Serializer(CreateTagResponse)
   public async createTag(
     @Body() body: CreateTagBodyValidator,
@@ -72,7 +63,6 @@ export default class TagController {
 
   @Patch('/:id')
   @HttpCode(HttpStatus.CREATED)
-  @Validator(UpdateTagValidator)
   @Serializer(UpdateTagResponse)
   public async updateTag(
     @Param() params: UpdateTagParamsValidator,
@@ -85,7 +75,6 @@ export default class TagController {
 
   @Delete('/:id')
   @HttpCode(HttpStatus.CREATED)
-  @Validator(DeleteTagValidator)
   @Serializer(DeleteTagResponse)
   public async deleteTag(
     @Param() params: DeleteTagParamsValidator,
