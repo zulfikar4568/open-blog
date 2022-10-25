@@ -22,13 +22,30 @@ import {
 } from './validators/update-post.validator';
 import DeletePostResponse from './serializers/delete-post.response';
 import { DeletePostParamsValidator } from './validators/delete-post.validator';
+import ListPostResponse from './serializers/list-post.request';
+import { ListPostQueryValidator } from './validators/list-post.validator';
 import SuccessResponse from '@/shared/responses/success.response';
 import Serializer from '@/shared/decorators/serializer.decorator';
+import Context from '@/shared/decorators/context.decorator';
+import { IContext } from '@/shared/interceptors/context.interceptor';
+import UseList from '@/shared/decorators/uselist.decorator';
+import { ApiFilterQuery } from '@/shared/decorators/api-filter-query.decorator';
 
 @ApiTags('Post')
 @Controller('posts')
 export class PostController {
   constructor(private readonly postService: PostService) {}
+
+  @Get('')
+  @HttpCode(HttpStatus.OK)
+  @Serializer(ListPostResponse)
+  @UseList()
+  @ApiFilterQuery('filters', ListPostQueryValidator)
+  public async lists(@Context() ctx: IContext) {
+    const result = await this.postService.listPosts(ctx);
+
+    return new SuccessResponse('post fetched successfully', result);
+  }
 
   @Get('/:id')
   @HttpCode(HttpStatus.OK)

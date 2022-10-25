@@ -64,7 +64,7 @@ export class OperatorQuery {
 export interface IListRequestQuery<E = any, F = any> {
   filters: {
     pagination: {
-      qursor: number;
+      cursor: number;
       limit: number;
     };
     sort: {
@@ -79,8 +79,8 @@ export class PaginationQuery {
   @IsOptional()
   @IsInt()
   @Type(() => Number)
-  @ApiPropertyOptional({ description: 'Qursor Id', example: 1 })
-  qursor = 1;
+  @ApiPropertyOptional({ description: 'Cursor Id', example: 1 })
+  cursor = 1;
 
   @IsOptional()
   @IsInt()

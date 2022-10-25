@@ -1,14 +1,14 @@
-import { ESortMode, IListRequestQuery } from '../types/query-qursor.type';
+import { ESortMode, IListRequestQuery } from '../types/query-cursor.type';
 
-export const parseQueryQursor = <T>(
+export const parseQueryCursor = <T>(
   query: T & IListRequestQuery,
 ): {
   limit: number;
-  qursor: number | undefined;
+  cursor: number | undefined;
   order: { [key: string]: ESortMode };
 } => {
   const limit = query.filters.pagination?.limit || 25;
-  const qursor = query.filters.pagination?.qursor || undefined;
+  const cursor = Number(query.filters.pagination?.cursor) || undefined;
   const order = {
     [query.filters.sort?.by || 'createdAt']:
       query.filters.sort?.mode || ESortMode.DESC,
@@ -16,7 +16,7 @@ export const parseQueryQursor = <T>(
 
   return {
     limit: Number(limit),
-    qursor,
+    cursor,
     order,
   };
 };
@@ -25,15 +25,15 @@ export const parseMetaCursor = <T>({
   result,
   total,
   limit,
-  lastQursor,
+  lastCursor,
 }: {
   result: T[];
   total: number;
   limit: number;
-  lastQursor: number;
+  lastCursor: number;
 }) => ({
   count: result.length,
   total,
-  lastQursor,
+  lastCursor,
   totalPage: Math.ceil(total / limit),
 });

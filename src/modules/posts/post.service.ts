@@ -19,8 +19,8 @@ import { PrismaService } from '@/prisma/prisma.service';
 import { IContext } from '@/shared/interceptors/context.interceptor';
 import {
   parseMetaCursor,
-  parseQueryQursor,
-} from '@/shared/utils/query-qursor.util';
+  parseQueryCursor,
+} from '@/shared/utils/query-cursor.util';
 
 @Injectable()
 export class PostService {
@@ -178,14 +178,14 @@ export class PostService {
     meta: {
       count: number;
       total: number;
-      lastQursor: number;
+      lastCursor: number;
       totalPage: number;
     };
   }> {
     const query = ctx.params.query as TListPostRequestQuery;
 
-    const { limit, order, qursor } =
-      parseQueryQursor<TListPostRequestQuery>(query);
+    const { limit, order, cursor } =
+      parseQueryCursor<TListPostRequestQuery>(query);
 
     const selectOptions = {
       orderBy: order,
@@ -196,8 +196,21 @@ export class PostService {
       take: limit,
     };
 
-    if (qursor !== undefined) {
-      pageOptions = { ...pageOptions, ...{ qursor: { id: qursor } } };
+    if (cursor !== undefined) {
+      const cursorPost = await this.db.post.findUnique({
+        where: {
+          id: cursor,
+        },
+      });
+
+      if (!cursorPost) {
+        throw new NotFoundException({
+          code: '404',
+          message: `Post with id ${cursor} is not found!`,
+        });
+      }
+
+      pageOptions = { ...pageOptions, ...{ cursor: { id: cursor }, skip: 1 } };
     }
 
     const [total, posts] = await this.db.$transaction([
@@ -205,12 +218,12 @@ export class PostService {
       this.db.post.findMany({ ...pageOptions, ...selectOptions }),
     ]);
 
-    const lastQursor = posts[posts.length - 1].id;
+    const lastCursor = posts.length > 0 ? posts[posts.length - 1].id : 0;
 
     const meta = parseMetaCursor<Post>({
       result: posts,
       total,
-      lastQursor,
+      lastCursor,
       limit,
     });
 

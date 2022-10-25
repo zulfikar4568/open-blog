@@ -7,7 +7,7 @@ import { TListPostRequestQuery } from '../requests/list-post.request';
 import {
   BaseQueryValidator,
   OperatorQuery,
-} from '@/shared/types/query-qursor.type';
+} from '@/shared/types/query-cursor.type';
 
 class ListPostQueryField implements Prisma.PostWhereInput {
   @Expose()
