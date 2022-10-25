@@ -69,7 +69,7 @@ model PostTag {
 model Tag {
   id                  Int @id @default(autoincrement())
   name                String @db.VarChar(50)
-  description         String
+  description         String?
 
   posts               PostTag[]
 
@@ -95,7 +95,7 @@ model PostCategory {
 model Category {
   id                  Int @id @default(autoincrement())
   name                String @db.VarChar(50)
-  description         String
+  description         String?
 
   posts               PostCategory[]
 
