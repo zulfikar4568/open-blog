@@ -10,6 +10,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
 import { PostService } from './post.service';
 import GetPostResponse from './serializers/get-post.response';
 import { GetPostParamsValidator } from './validators/get-post.validator';
@@ -31,6 +32,7 @@ import { IContext } from '@/shared/interceptors/context.interceptor';
 import UseList from '@/shared/decorators/uselist.decorator';
 import { ApiFilterQuery } from '@/shared/decorators/api-filter-query.decorator';
 import Authentication from '@/shared/decorators/authentication.decorator';
+import Authorization from '@/shared/decorators/authorization.decorator';
 
 @ApiTags('Post')
 @Controller('posts')
@@ -64,6 +66,7 @@ export class PostController {
   @HttpCode(HttpStatus.CREATED)
   @Serializer(CreatePostResponse)
   @Authentication(true)
+  @Authorization(Role.USER)
   public async createPost(
     @Body() body: CreatePostBodyValidator,
   ): Promise<SuccessResponse> {
@@ -77,6 +80,7 @@ export class PostController {
   @HttpCode(HttpStatus.CREATED)
   @Serializer(UpdatePostResponse)
   @Authentication(true)
+  @Authorization(Role.USER)
   public async updatePost(
     @Param() params: UpdatePostParamsValidator,
     @Body() body: UpdatePostBodyValidator,
@@ -91,6 +95,7 @@ export class PostController {
   @HttpCode(HttpStatus.CREATED)
   @Serializer(DeletePostResponse)
   @Authentication(true)
+  @Authorization(Role.USER)
   public async deletePost(
     @Param() params: DeletePostParamsValidator,
   ): Promise<SuccessResponse> {

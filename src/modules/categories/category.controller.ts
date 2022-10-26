@@ -10,6 +10,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
 import { CategoryService } from './category.service';
 import CreateCategoryResponse from './serializers/create-category.response';
 import DeleteCategoryResponse from './serializers/delete-category.response';
@@ -25,6 +26,7 @@ import {
 import SuccessResponse from '@/shared/responses/success.response';
 import Serializer from '@/shared/decorators/serializer.decorator';
 import Authentication from '@/shared/decorators/authentication.decorator';
+import Authorization from '@/shared/decorators/authorization.decorator';
 
 @ApiTags('Category')
 @Controller('categories')
@@ -57,6 +59,7 @@ export default class CategoryController {
   @HttpCode(HttpStatus.CREATED)
   @Serializer(CreateCategoryResponse)
   @Authentication(true)
+  @Authorization(Role.USER)
   public async createCategory(
     @Body() body: CreateCategoryBodyValidator,
   ): Promise<SuccessResponse> {
@@ -70,6 +73,7 @@ export default class CategoryController {
   @HttpCode(HttpStatus.CREATED)
   @Serializer(UpdateCategoryResponse)
   @Authentication(true)
+  @Authorization(Role.USER)
   public async updateCategory(
     @Param() params: UpdateCategoryParamsValidator,
     @Body() body: UpdateCategoryBodyValidator,
@@ -84,6 +88,7 @@ export default class CategoryController {
   @HttpCode(HttpStatus.CREATED)
   @Serializer(DeleteCategoryResponse)
   @Authentication(true)
+  @Authorization(Role.USER)
   public async deleteCategory(
     @Param() params: DeleteCategoryParamsValidator,
   ): Promise<SuccessResponse> {

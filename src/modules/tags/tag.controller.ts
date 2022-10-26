@@ -10,6 +10,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
 import CreateTagResponse from './serializers/create-tag.response';
 import DeleteTagResponse from './serializers/delete-tag.response';
 import GetTagResponse from './serializers/get-tag.response';
@@ -25,6 +26,7 @@ import {
 import SuccessResponse from '@/shared/responses/success.response';
 import Serializer from '@/shared/decorators/serializer.decorator';
 import Authentication from '@/shared/decorators/authentication.decorator';
+import Authorization from '@/shared/decorators/authorization.decorator';
 
 @ApiTags('Tag')
 @Controller('tags')
@@ -56,6 +58,7 @@ export default class TagController {
   @HttpCode(HttpStatus.CREATED)
   @Serializer(CreateTagResponse)
   @Authentication(true)
+  @Authorization(Role.USER)
   public async createTag(
     @Body() body: CreateTagBodyValidator,
   ): Promise<SuccessResponse> {
@@ -69,6 +72,7 @@ export default class TagController {
   @HttpCode(HttpStatus.CREATED)
   @Serializer(UpdateTagResponse)
   @Authentication(true)
+  @Authorization(Role.USER)
   public async updateTag(
     @Param() params: UpdateTagParamsValidator,
     @Body() body: UpdateTagBodyValidator,
@@ -83,6 +87,7 @@ export default class TagController {
   @HttpCode(HttpStatus.CREATED)
   @Serializer(DeleteTagResponse)
   @Authentication(true)
+  @Authorization(Role.USER)
   public async deleteTag(
     @Param() params: DeleteTagParamsValidator,
   ): Promise<SuccessResponse> {

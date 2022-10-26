@@ -12,7 +12,6 @@ export class LoginInterceptor implements NestInterceptor {
       map((data: SuccessResponse) => {
         const response = context.switchToHttp().getResponse();
         const result = data.result;
-        console.log(result);
         response.cookie('access-token', result.token, {
           expires: generateExpiredDate(),
           sameSite: 'strict',
