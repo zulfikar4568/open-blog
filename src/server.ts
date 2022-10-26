@@ -45,7 +45,7 @@ const httpServer = new Promise(async (resolve, reject) => {
     // Serve public images
     app.use(
       '/api/zulfikar/public',
-      express.static(join(__dirname, '..', 'public')),
+      express.static(join(__dirname, '../../', 'public')),
     );
 
     // Use Cookie for http only
