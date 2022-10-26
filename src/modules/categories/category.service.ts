@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { Category } from '@prisma/client';
+import { Category, Role } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { ICreateCategoryRequestBody } from './requests/create-category.request';
 import { IDeleteCategoryRequestParams } from './requests/delete-category.request';
@@ -11,18 +11,53 @@ import {
 import log from '@/shared/utils/log.util';
 import {
   NotFoundException,
+  UnauthorizedException,
   UnknownException,
 } from '@/shared/exceptions/common.exception';
 import { PrismaService } from '@/prisma/prisma.service';
+import { IContext } from '@/shared/interceptors/context.interceptor';
+import { TUserCompact } from '@/shared/types/user.type';
 
 @Injectable()
 export class CategoryService {
   constructor(private readonly db: PrismaService) {}
 
-  async createCategory(body: ICreateCategoryRequestBody): Promise<Category> {
+  private checkPermission(ctx: IContext, category: Category) {
+    const user = ctx.user as TUserCompact;
+
+    if (!user.id)
+      throw new UnauthorizedException({
+        code: HttpStatus.UNAUTHORIZED.toString(),
+        message: 'You need login first!',
+      });
+
+    if (!user.roles?.includes(Role.ADMIN)) {
+      if (user.id !== category?.userId) {
+        throw new UnauthorizedException({
+          code: HttpStatus.UNAUTHORIZED.toString(),
+          message: "You can't change a category which not yours!",
+        });
+      }
+    }
+  }
+
+  async createCategory(
+    ctx: IContext,
+    body: ICreateCategoryRequestBody,
+  ): Promise<Category> {
     try {
+      const user = ctx.user as TUserCompact;
+
+      if (!user.id)
+        throw new UnauthorizedException({
+          code: HttpStatus.UNAUTHORIZED.toString(),
+          message: 'You need login first!',
+        });
+
+      const newData = { ...body, ...{ userId: user.id } };
+
       const category = await this.db.category.create({
-        data: body,
+        data: newData,
       });
 
       return category;
@@ -39,6 +74,7 @@ export class CategoryService {
     }
   }
   async deleteCategory(
+    ctx: IContext,
     params: IDeleteCategoryRequestParams,
   ): Promise<Category> {
     try {
@@ -55,6 +91,8 @@ export class CategoryService {
           params: params,
         });
       }
+
+      this.checkPermission(ctx, checkCategory);
 
       const categoryDeleted = await this.db.category.delete({
         where: {
@@ -76,6 +114,7 @@ export class CategoryService {
     }
   }
   async updateCategory(
+    ctx: IContext,
     params: IUpdateCategoryRequestParams,
     body: IUpdateCategoryRequestBody,
   ): Promise<Category> {
@@ -92,6 +131,8 @@ export class CategoryService {
         params: params,
       });
     }
+
+    this.checkPermission(ctx, checkCategory);
 
     try {
       const category = await this.db.category.upsert({

@@ -2,6 +2,8 @@ import { Tag } from '@prisma/client';
 import { Exclude } from 'class-transformer';
 
 export default class UpdateTagResponse implements Tag {
+  userId: number;
+
   id: number;
 
   name: string;

@@ -27,6 +27,8 @@ import SuccessResponse from '@/shared/responses/success.response';
 import Serializer from '@/shared/decorators/serializer.decorator';
 import Authentication from '@/shared/decorators/authentication.decorator';
 import Authorization from '@/shared/decorators/authorization.decorator';
+import Context from '@/shared/decorators/context.decorator';
+import { IContext } from '@/shared/interceptors/context.interceptor';
 
 @ApiTags('Category')
 @Controller('categories')
@@ -61,9 +63,10 @@ export default class CategoryController {
   @Authentication(true)
   @Authorization(Role.USER)
   public async createCategory(
+    @Context() ctx: IContext,
     @Body() body: CreateCategoryBodyValidator,
   ): Promise<SuccessResponse> {
-    const result = await this.categoryService.createCategory(body);
+    const result = await this.categoryService.createCategory(ctx, body);
 
     return new SuccessResponse('category created successfully', result);
   }
@@ -75,10 +78,11 @@ export default class CategoryController {
   @Authentication(true)
   @Authorization(Role.USER)
   public async updateCategory(
+    @Context() ctx: IContext,
     @Param() params: UpdateCategoryParamsValidator,
     @Body() body: UpdateCategoryBodyValidator,
   ): Promise<SuccessResponse> {
-    const result = await this.categoryService.updateCategory(params, body);
+    const result = await this.categoryService.updateCategory(ctx, params, body);
 
     return new SuccessResponse('category fetched successfully', result);
   }
@@ -90,9 +94,10 @@ export default class CategoryController {
   @Authentication(true)
   @Authorization(Role.USER)
   public async deleteCategory(
+    @Context() ctx: IContext,
     @Param() params: DeleteCategoryParamsValidator,
   ): Promise<SuccessResponse> {
-    const result = await this.categoryService.deleteCategory(params);
+    const result = await this.categoryService.deleteCategory(ctx, params);
 
     return new SuccessResponse('site deleted successfully', result);
   }

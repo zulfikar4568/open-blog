@@ -43,6 +43,8 @@ model User {
 
   posts               Post[]
   sessions            Session[]
+  tags                Tag[]
+  categories          Category[]
 
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
@@ -64,7 +66,7 @@ model Post {
   categories          PostCategory[]
   
   userId              Int @db.Integer()
-  user                User @relation(fields: [id], references: [id])
+  user                User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   isPublished         Boolean?
   updatedAt           DateTime @updatedAt()
@@ -75,9 +77,9 @@ model Post {
 
 model PostTag {
   postId              Int @db.Integer()
-  post                Post @relation(fields: [postId], references: [id])
+  post                Post @relation(fields: [postId], references: [id], onDelete: Cascade)
   tagId               Int @db.Integer()
-  tag                 Tag @relation(fields: [tagId], references: [id])
+  tag                 Tag @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   updatedAt           DateTime @updatedAt()
   createdAt           DateTime @default(now())
@@ -93,6 +95,9 @@ model Tag {
 
   posts               PostTag[]
 
+  userId              Int @db.Integer()
+  user                User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   updatedAt           DateTime @updatedAt()
   createdAt           DateTime @default(now())
 
@@ -101,9 +106,9 @@ model Tag {
 
 model PostCategory {
   postId              Int @db.Integer()
-  post                Post @relation(fields: [postId], references: [id])
+  post                Post @relation(fields: [postId], references: [id], onDelete: Cascade)
   categoryId          Int @db.Integer()
-  category            Category @relation(fields: [categoryId], references: [id])
+  category            Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   updatedAt           DateTime @updatedAt()
   createdAt           DateTime @default(now())
@@ -118,6 +123,9 @@ model Category {
   description         String?
 
   posts               PostCategory[]
+
+  userId              Int @db.Integer()
+  user                User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   updatedAt           DateTime @updatedAt()
   createdAt           DateTime @default(now())

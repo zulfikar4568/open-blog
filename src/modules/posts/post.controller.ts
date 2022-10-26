@@ -68,9 +68,10 @@ export class PostController {
   @Authentication(true)
   @Authorization(Role.USER)
   public async createPost(
+    @Context() ctx: IContext,
     @Body() body: CreatePostBodyValidator,
   ): Promise<SuccessResponse> {
-    const result = await this.postService.createPost(body);
+    const result = await this.postService.createPost(ctx, body);
 
     return new SuccessResponse('post created successfully', result);
   }
@@ -82,10 +83,11 @@ export class PostController {
   @Authentication(true)
   @Authorization(Role.USER)
   public async updatePost(
+    @Context() ctx: IContext,
     @Param() params: UpdatePostParamsValidator,
     @Body() body: UpdatePostBodyValidator,
   ): Promise<SuccessResponse> {
-    const result = await this.postService.updatePost(params, body);
+    const result = await this.postService.updatePost(ctx, params, body);
 
     return new SuccessResponse('post fetched successfully', result);
   }
@@ -97,9 +99,10 @@ export class PostController {
   @Authentication(true)
   @Authorization(Role.USER)
   public async deletePost(
+    @Context() ctx: IContext,
     @Param() params: DeletePostParamsValidator,
   ): Promise<SuccessResponse> {
-    const result = await this.postService.deletePost(params);
+    const result = await this.postService.deletePost(ctx, params);
 
     return new SuccessResponse('post deleted successfully', result);
   }

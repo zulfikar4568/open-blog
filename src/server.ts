@@ -75,7 +75,7 @@ const httpServer = new Promise(async (resolve, reject) => {
       .build();
 
     const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('/api/zulfikar', app, document, option);
+    SwaggerModule.setup('/api/blog', app, document, option);
 
     await app
       .listen(appConstant.APP_PORT)

@@ -5,7 +5,6 @@ export interface ICreatePostRequestBody {
   postContents: string | null;
   isPublished: boolean | null;
 
-  userId: number;
   categories: number[];
   tags: number[];
 }

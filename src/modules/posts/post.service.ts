@@ -1,5 +1,5 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
-import { Post } from '@prisma/client';
+import { HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Post, Role } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import {
   INewDataPostRequest,
@@ -21,16 +21,44 @@ import {
   parseMetaCursor,
   parseQueryCursor,
 } from '@/shared/utils/query-cursor.util';
+import { TUserCompact } from '@/shared/types/user.type';
 
 @Injectable()
 export class PostService {
   constructor(private readonly db: PrismaService) {}
 
-  async createPost(body: ICreatePostRequestBody): Promise<Post> {
+  private checkPermission(ctx: IContext, post: Post) {
+    const user = ctx.user as TUserCompact;
+
+    if (!user.id)
+      throw new UnauthorizedException({
+        code: HttpStatus.UNAUTHORIZED.toString(),
+        message: 'You need login first!',
+      });
+
+    if (!user.roles?.includes(Role.ADMIN)) {
+      if (user.id !== post?.userId) {
+        throw new UnauthorizedException({
+          code: HttpStatus.UNAUTHORIZED.toString(),
+          message: "You can't change a post which not yours!",
+        });
+      }
+    }
+  }
+
+  async createPost(ctx: IContext, body: ICreatePostRequestBody): Promise<Post> {
     try {
+      const user = ctx.user as TUserCompact;
+
+      if (!user.id)
+        throw new UnauthorizedException({
+          code: HttpStatus.UNAUTHORIZED.toString(),
+          message: 'You need login first!',
+        });
+
       const post = await this.db.post.create({
         data: {
-          userId: body.userId,
+          userId: user.id,
           counterLike: 0,
           lastRead: new Date(Date.now()),
           title: body.title,
@@ -58,7 +86,7 @@ export class PostService {
         log.error(error.message);
         throw new UnknownException({
           code: HttpStatus.INTERNAL_SERVER_ERROR.toString(),
-          message: `Error unexpected when Create Category!`,
+          message: `Error unexpected when Create Post!`,
           params: { exception: error.message },
         });
       }
@@ -67,6 +95,7 @@ export class PostService {
   }
 
   async updatePost(
+    ctx: IContext,
     params: IUpdatePostRequestParams,
     body: IUpdatePostRequestBody,
   ): Promise<Post> {
@@ -100,6 +129,8 @@ export class PostService {
       },
     };
 
+    this.checkPermission(ctx, checkPost);
+
     try {
       const post = await this.db.post.update({
         where: { id: Number(params.id) },
@@ -121,7 +152,7 @@ export class PostService {
     }
   }
 
-  async deletePost(params: IDeletePostRequestParams) {
+  async deletePost(ctx: IContext, params: IDeletePostRequestParams) {
     try {
       const checkPost = await this.db.post.findUnique({
         where: {
@@ -136,6 +167,8 @@ export class PostService {
           params: params,
         });
       }
+
+      this.checkPermission(ctx, checkPost);
 
       const postDeleted = await this.db.post.delete({
         where: {

@@ -2,6 +2,7 @@ import { Category, Post, PostCategory, PostTag, Tag } from '@prisma/client';
 import { Exclude, Type } from 'class-transformer';
 
 export class GetTagResponse implements Tag {
+  userId: number;
   id: number;
   name: string;
   description: string | null;
@@ -30,6 +31,7 @@ export class GetPostTagsResponse implements PostTag {
 }
 
 export class GetCategoryResponse implements Category {
+  userId: number;
   id: number;
   name: string;
   description: string | null;

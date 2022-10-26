@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { Tag } from '@prisma/client';
+import { Role, Tag } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { ICreateTagRequestBody } from './requests/create-tag.request';
 import { IDeleteTagRequestParams } from './requests/delete-tag.request';
@@ -11,18 +11,50 @@ import {
 import log from '@/shared/utils/log.util';
 import {
   NotFoundException,
+  UnauthorizedException,
   UnknownException,
 } from '@/shared/exceptions/common.exception';
 import { PrismaService } from '@/prisma/prisma.service';
+import { IContext } from '@/shared/interceptors/context.interceptor';
+import { TUserCompact } from '@/shared/types/user.type';
 
 @Injectable()
 export class TagService {
   constructor(private readonly db: PrismaService) {}
 
-  async createTag(body: ICreateTagRequestBody) {
+  private checkPermission(ctx: IContext, tag: Tag) {
+    const user = ctx.user as TUserCompact;
+
+    if (!user.id)
+      throw new UnauthorizedException({
+        code: HttpStatus.UNAUTHORIZED.toString(),
+        message: 'You need login first!',
+      });
+
+    if (!user.roles?.includes(Role.ADMIN)) {
+      if (user.id !== tag?.userId) {
+        throw new UnauthorizedException({
+          code: HttpStatus.UNAUTHORIZED.toString(),
+          message: "You can't change a tag which not yours!",
+        });
+      }
+    }
+  }
+
+  async createTag(ctx: IContext, body: ICreateTagRequestBody) {
     try {
+      const user = ctx.user as TUserCompact;
+
+      if (!user.id)
+        throw new UnauthorizedException({
+          code: HttpStatus.UNAUTHORIZED.toString(),
+          message: 'You need login first!',
+        });
+
+      const newData = { ...body, ...{ userId: user.id } };
+
       const tag = await this.db.tag.create({
-        data: body,
+        data: newData,
       });
 
       return tag;
@@ -38,7 +70,10 @@ export class TagService {
       throw error;
     }
   }
-  async deleteTag(params: IDeleteTagRequestParams): Promise<Tag> {
+  async deleteTag(
+    ctx: IContext,
+    params: IDeleteTagRequestParams,
+  ): Promise<Tag> {
     try {
       const checkTag = await this.db.tag.findUnique({
         where: {
@@ -53,6 +88,8 @@ export class TagService {
           params: params,
         });
       }
+
+      this.checkPermission(ctx, checkTag);
 
       const tagDeleted = await this.db.tag.delete({
         where: {
@@ -74,6 +111,7 @@ export class TagService {
     }
   }
   async updateTag(
+    ctx: IContext,
     params: IUpdateTagRequestParams,
     body: IUpdateTagRequestBody,
   ) {
@@ -90,6 +128,8 @@ export class TagService {
         params: params,
       });
     }
+
+    this.checkPermission(ctx, checkTag);
 
     try {
       const tag = await this.db.tag.upsert({

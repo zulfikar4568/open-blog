@@ -27,6 +27,8 @@ import SuccessResponse from '@/shared/responses/success.response';
 import Serializer from '@/shared/decorators/serializer.decorator';
 import Authentication from '@/shared/decorators/authentication.decorator';
 import Authorization from '@/shared/decorators/authorization.decorator';
+import Context from '@/shared/decorators/context.decorator';
+import { IContext } from '@/shared/interceptors/context.interceptor';
 
 @ApiTags('Tag')
 @Controller('tags')
@@ -60,9 +62,10 @@ export default class TagController {
   @Authentication(true)
   @Authorization(Role.USER)
   public async createTag(
+    @Context() ctx: IContext,
     @Body() body: CreateTagBodyValidator,
   ): Promise<SuccessResponse> {
-    const result = await this.tagService.createTag(body);
+    const result = await this.tagService.createTag(ctx, body);
 
     return new SuccessResponse('tag created successfully', result);
   }
@@ -74,10 +77,11 @@ export default class TagController {
   @Authentication(true)
   @Authorization(Role.USER)
   public async updateTag(
+    @Context() ctx: IContext,
     @Param() params: UpdateTagParamsValidator,
     @Body() body: UpdateTagBodyValidator,
   ): Promise<SuccessResponse> {
-    const result = await this.tagService.updateTag(params, body);
+    const result = await this.tagService.updateTag(ctx, params, body);
 
     return new SuccessResponse('tag fetched successfully', result);
   }
@@ -89,9 +93,10 @@ export default class TagController {
   @Authentication(true)
   @Authorization(Role.USER)
   public async deleteTag(
+    @Context() ctx: IContext,
     @Param() params: DeleteTagParamsValidator,
   ): Promise<SuccessResponse> {
-    const result = await this.tagService.deleteTag(params);
+    const result = await this.tagService.deleteTag(ctx, params);
 
     return new SuccessResponse('tag deleted successfully', result);
   }
