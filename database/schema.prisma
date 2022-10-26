@@ -18,13 +18,16 @@ enum Role {
 
 model User {
   id                  Int @id @default(autoincrement())
+  firstName           String
+  lastName            String?
   email               String @db.VarChar(50) @unique
   imageUrl            String?
   phoneNumber         String?
-  password            String
+  password            String?
+  googleId            Int? @db.Integer()
   roles               Role[] @default(value: [USER])
 
-  comments            Comment[]
+  posts               Post[]
 
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
@@ -44,7 +47,9 @@ model Post {
 
   tags                PostTag[]
   categories          PostCategory[]
-  comments            Comment[]
+  
+  userId              Int @db.Integer()
+  user                User @relation(fields: [id], references: [id])
 
   isPublished         Boolean?
   updatedAt           DateTime @updatedAt()
@@ -103,23 +108,4 @@ model Category {
   createdAt           DateTime @default(now())
 
   @@map("categories")
-}
-
-model Comment {
-  id                  Int @id @default(autoincrement())
-  commentContents     String
-
-  postId              Int @db.Integer()
-  post                Post @relation(fields: [postId], references: [id])
-  userId              Int @db.Integer()
-  user                User @relation(fields: [userId], references: [id])
-
-  parent_id           Int @db.Integer()
-  parent              Comment? @relation("CommentParentChilds", fields: [parent_id], references: [id])
-  childs              Comment[] @relation("CommentParentChilds")
-
-  updatedAt           DateTime @updatedAt()
-  createdAt           DateTime @default(now())
-
-  @@map("comments")
 }

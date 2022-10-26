@@ -33,10 +33,12 @@
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.0.3",
     "env-var": "^7.3.0",
+    "hasha": "^5.2.2",
     "nestjs-pino": "^3.1.1",
     "pino": "^8.7.0",
     "pino-http": "^8.2.1",
     "pino-pretty": "^9.1.1",
+    "randomstring": "^1.2.3",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0"
