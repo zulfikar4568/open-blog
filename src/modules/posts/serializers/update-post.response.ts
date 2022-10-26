@@ -64,6 +64,8 @@ export default class UpdatePostResponse implements Post {
   counterLike: number;
   isPublished: boolean | null;
 
+  userId: number;
+
   @Type(() => UpdatePostTagsResponse)
   tags: UpdatePostTagsResponse;
 

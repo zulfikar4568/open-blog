@@ -30,6 +30,7 @@ export class PostService {
     try {
       const post = await this.db.post.create({
         data: {
+          userId: body.userId,
           counterLike: 0,
           lastRead: new Date(Date.now()),
           title: body.title,
@@ -242,13 +243,6 @@ export class PostService {
     tags: {
       include: {
         tag: true,
-      },
-    },
-    comments: {
-      include: {
-        childs: true,
-        user: true,
-        parent: true,
       },
     },
   });

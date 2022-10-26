@@ -10,6 +10,8 @@ export default class ListPostResponse implements Post {
   counterLike: number;
   isPublished: boolean | null;
 
+  userId: number;
+
   updatedAt: Date;
   createdAt: Date;
 }

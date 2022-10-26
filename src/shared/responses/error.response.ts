@@ -6,7 +6,7 @@ export interface IErrorResponse {
   params: Record<string, any>;
 }
 
-export default class ErrorResponse extends BaseResponse<null, IErrorResponse> {
+export default class ErrorResponse extends BaseResponse {
   constructor(public message: string, error: IErrorResponse) {
     super(false, message, null, error, {});
   }

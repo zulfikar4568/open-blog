@@ -4,6 +4,7 @@ import {
   IsArray,
   IsBoolean,
   IsNotEmpty,
+  IsNumber,
   IsObject,
   IsOptional,
   IsString,
@@ -12,6 +13,14 @@ import {
 import { ICreatePostRequestBody } from '../requests/create-post.request';
 
 export class CreatePostBodyValidator implements ICreatePostRequestBody {
+  @ApiProperty({
+    example: 8,
+    description: 'Insert your user Id post in Here!',
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  userId: number;
+
   @ApiProperty({
     example: 'Welcome to the post',
     description: 'Insert your title post in Here!',

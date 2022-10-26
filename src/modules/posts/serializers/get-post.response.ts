@@ -64,6 +64,8 @@ export default class GetPostResponse implements Post {
   counterLike: number;
   isPublished: boolean | null;
 
+  userId: number;
+
   @Type(() => GetPostTagsResponse)
   tags: GetPostTagsResponse;
 

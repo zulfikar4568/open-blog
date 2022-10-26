@@ -64,6 +64,8 @@ export default class DeletePostResponse implements Post {
   counterLike: number;
   isPublished: boolean | null;
 
+  userId: number;
+
   @Type(() => DeletePostTagsResponse)
   tags: DeletePostTagsResponse;
 

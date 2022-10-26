@@ -42,9 +42,9 @@ export class PostController {
   @UseList()
   @ApiFilterQuery('filters', ListPostQueryValidator)
   public async lists(@Context() ctx: IContext) {
-    const result = await this.postService.listPosts(ctx);
+    const { meta, result } = await this.postService.listPosts(ctx);
 
-    return new SuccessResponse('post fetched successfully', result);
+    return new SuccessResponse('post fetched successfully', result, meta);
   }
 
   @Get('/:id')

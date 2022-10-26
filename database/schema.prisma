@@ -16,6 +16,20 @@ enum Role {
   ADMIN
 }
 
+model Session {
+  id                  Int      @id @default(autoincrement())
+  user                User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId              Int      @db.Integer()
+  token               String   @unique @db.Text
+  refresh             String   @unique @db.VarChar(255)
+  data                Json
+  expiredAt           DateTime
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("sessions")
+}
+
 model User {
   id                  Int @id @default(autoincrement())
   firstName           String
@@ -24,10 +38,11 @@ model User {
   imageUrl            String?
   phoneNumber         String?
   password            String?
-  googleId            Int? @db.Integer()
+  googleId            String? @db.VarChar(50)
   roles               Role[] @default(value: [USER])
 
   posts               Post[]
+  sessions            Session[]
 
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
