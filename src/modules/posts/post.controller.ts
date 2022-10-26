@@ -9,7 +9,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PostService } from './post.service';
 import GetPostResponse from './serializers/get-post.response';
 import { GetPostParamsValidator } from './validators/get-post.validator';
@@ -30,6 +30,7 @@ import Context from '@/shared/decorators/context.decorator';
 import { IContext } from '@/shared/interceptors/context.interceptor';
 import UseList from '@/shared/decorators/uselist.decorator';
 import { ApiFilterQuery } from '@/shared/decorators/api-filter-query.decorator';
+import Authentication from '@/shared/decorators/authentication.decorator';
 
 @ApiTags('Post')
 @Controller('posts')
@@ -58,9 +59,11 @@ export class PostController {
     return new SuccessResponse('post fetched successfully', result);
   }
 
+  @ApiBearerAuth('access-token')
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @Serializer(CreatePostResponse)
+  @Authentication(true)
   public async createPost(
     @Body() body: CreatePostBodyValidator,
   ): Promise<SuccessResponse> {
@@ -69,9 +72,11 @@ export class PostController {
     return new SuccessResponse('post created successfully', result);
   }
 
+  @ApiBearerAuth('access-token')
   @Patch('/:id')
   @HttpCode(HttpStatus.CREATED)
   @Serializer(UpdatePostResponse)
+  @Authentication(true)
   public async updatePost(
     @Param() params: UpdatePostParamsValidator,
     @Body() body: UpdatePostBodyValidator,
@@ -81,9 +86,11 @@ export class PostController {
     return new SuccessResponse('post fetched successfully', result);
   }
 
+  @ApiBearerAuth('access-token')
   @Delete('/:id')
   @HttpCode(HttpStatus.CREATED)
   @Serializer(DeletePostResponse)
+  @Authentication(true)
   public async deletePost(
     @Param() params: DeletePostParamsValidator,
   ): Promise<SuccessResponse> {

@@ -9,7 +9,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import CreateTagResponse from './serializers/create-tag.response';
 import DeleteTagResponse from './serializers/delete-tag.response';
 import GetTagResponse from './serializers/get-tag.response';
@@ -24,6 +24,7 @@ import {
 } from './validators/update-tag.validator';
 import SuccessResponse from '@/shared/responses/success.response';
 import Serializer from '@/shared/decorators/serializer.decorator';
+import Authentication from '@/shared/decorators/authentication.decorator';
 
 @ApiTags('Tag')
 @Controller('tags')
@@ -50,9 +51,11 @@ export default class TagController {
     return new SuccessResponse('tag fetched successfully', result);
   }
 
+  @ApiBearerAuth('access-token')
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @Serializer(CreateTagResponse)
+  @Authentication(true)
   public async createTag(
     @Body() body: CreateTagBodyValidator,
   ): Promise<SuccessResponse> {
@@ -61,9 +64,11 @@ export default class TagController {
     return new SuccessResponse('tag created successfully', result);
   }
 
+  @ApiBearerAuth('access-token')
   @Patch('/:id')
   @HttpCode(HttpStatus.CREATED)
   @Serializer(UpdateTagResponse)
+  @Authentication(true)
   public async updateTag(
     @Param() params: UpdateTagParamsValidator,
     @Body() body: UpdateTagBodyValidator,
@@ -73,9 +78,11 @@ export default class TagController {
     return new SuccessResponse('tag fetched successfully', result);
   }
 
+  @ApiBearerAuth('access-token')
   @Delete('/:id')
   @HttpCode(HttpStatus.CREATED)
   @Serializer(DeleteTagResponse)
+  @Authentication(true)
   public async deleteTag(
     @Param() params: DeleteTagParamsValidator,
   ): Promise<SuccessResponse> {

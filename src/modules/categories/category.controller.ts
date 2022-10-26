@@ -9,7 +9,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CategoryService } from './category.service';
 import CreateCategoryResponse from './serializers/create-category.response';
 import DeleteCategoryResponse from './serializers/delete-category.response';
@@ -24,6 +24,7 @@ import {
 } from './validators/update-category.validator';
 import SuccessResponse from '@/shared/responses/success.response';
 import Serializer from '@/shared/decorators/serializer.decorator';
+import Authentication from '@/shared/decorators/authentication.decorator';
 
 @ApiTags('Category')
 @Controller('categories')
@@ -39,6 +40,7 @@ export default class CategoryController {
     return new SuccessResponse('All categories listed successfully!', result);
   }
 
+  @ApiBearerAuth('access-token')
   @Get('/:id')
   @HttpCode(HttpStatus.OK)
   @Serializer(GetCategoryResponse)
@@ -50,9 +52,11 @@ export default class CategoryController {
     return new SuccessResponse('category fetched successfully', result);
   }
 
+  @ApiBearerAuth('access-token')
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @Serializer(CreateCategoryResponse)
+  @Authentication(true)
   public async createCategory(
     @Body() body: CreateCategoryBodyValidator,
   ): Promise<SuccessResponse> {
@@ -61,9 +65,11 @@ export default class CategoryController {
     return new SuccessResponse('category created successfully', result);
   }
 
+  @ApiBearerAuth('access-token')
   @Patch('/:id')
   @HttpCode(HttpStatus.CREATED)
   @Serializer(UpdateCategoryResponse)
+  @Authentication(true)
   public async updateCategory(
     @Param() params: UpdateCategoryParamsValidator,
     @Body() body: UpdateCategoryBodyValidator,
@@ -73,9 +79,11 @@ export default class CategoryController {
     return new SuccessResponse('category fetched successfully', result);
   }
 
+  @ApiBearerAuth('access-token')
   @Delete('/:id')
   @HttpCode(HttpStatus.CREATED)
   @Serializer(DeleteCategoryResponse)
+  @Authentication(true)
   public async deleteCategory(
     @Param() params: DeleteCategoryParamsValidator,
   ): Promise<SuccessResponse> {
