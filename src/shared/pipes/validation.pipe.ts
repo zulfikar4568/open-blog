@@ -1,13 +1,7 @@
-import {
-  ArgumentMetadata,
-  HttpException,
-  HttpStatus,
-  ValidationPipe as OriginalValidationPipe,
-} from '@nestjs/common';
+import { ArgumentMetadata, PipeTransform } from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
-import { plainToClass } from 'class-transformer';
-import { validateOrReject } from 'class-validator';
-
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
 import { BadRequestException } from '../exceptions/common.exception';
 
 interface ClassConstructor {
@@ -15,73 +9,37 @@ interface ClassConstructor {
 }
 
 @Injectable()
-export default class ValidationPipe extends OriginalValidationPipe {
-  constructor(private dto: ClassConstructor) {
-    super();
-  }
+export default class ValidationPipe implements PipeTransform<any> {
+  async transform(value: any, { metatype, type }: ArgumentMetadata) {
+    if (!metatype || !this.toValidate(metatype)) {
+      return value;
+    }
 
-  async transform(value: any, metadata: ArgumentMetadata) {
-    try {
-      if (
-        metadata.type !== 'custom' ||
-        !this.needValidate(value, metadata.metatype)
-      ) {
-        return value;
-      }
+    if (type === 'param' && Object.keys(value).includes('id')) {
+      value.id = Number(value.id);
+    }
 
-      const input = plainToClass(
-        this.dto,
-        Object.keys(value.params).length ? value.params : value,
-      );
-      await validateOrReject(input).catch((errors) => {
-        throw this.exceptionFactory(errors);
+    const object = plainToInstance(metatype, value);
+    const errors = await validate(object);
+
+    const customErrors = errors.map((err) => ({
+      field: err.property,
+      value: err.value,
+      errors: err.constraints,
+    }));
+
+    if (errors.length > 0) {
+      throw new BadRequestException({
+        code: '401',
+        message: 'Validation failed!',
+        params: customErrors,
       });
-
-      return { ...value, params: input };
-    } catch (err) {
-      if (err instanceof HttpException) {
-        if (err.getStatus() === HttpStatus.BAD_REQUEST) {
-          const response = err.getResponse() as {
-            message: string[] | string;
-          };
-
-          const messages = this.parseMessages(response.message);
-
-          throw new BadRequestException({
-            message: 'invalid payload',
-            params: {
-              details: messages,
-            },
-          });
-        }
-
-        throw err;
-      }
     }
+    return value;
   }
 
-  private needValidate(value: any, metatype: any): boolean {
-    const types = [Object];
-    const ctxParamsProps = ['params', 'body', 'query'];
-
-    const isCtx =
-      value.params &&
-      Object.keys(value.params).length === 3 &&
-      Object.keys(value.params).every((prop) => ctxParamsProps.includes(prop));
-
-    const isCtxParams =
-      value &&
-      Object.keys(value).length === 3 &&
-      Object.keys(value).every((prop) => ctxParamsProps.includes(prop));
-
-    return types.includes(metatype) && value && (isCtx || isCtxParams);
-  }
-
-  private parseMessages(message: string[] | string): string[] {
-    if (typeof message === 'string') {
-      return [message];
-    }
-
-    return message;
+  private toValidate(metatype: ClassConstructor): boolean {
+    const types: ClassConstructor[] = [String, Boolean, Number, Array, Object];
+    return !types.includes(metatype);
   }
 }

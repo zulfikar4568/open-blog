@@ -16,15 +16,36 @@ enum Role {
   ADMIN
 }
 
+model Session {
+  id                  Int      @id @default(autoincrement())
+  user                User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId              Int      @db.Integer()
+  token               String   @unique @db.Text
+  refresh             String   @unique @db.VarChar(255)
+  data                Json
+  expiredAt           DateTime
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("sessions")
+}
+
 model User {
   id                  Int @id @default(autoincrement())
+  firstName           String
+  lastName            String?
   email               String @db.VarChar(50) @unique
   imageUrl            String?
   phoneNumber         String?
-  password            String
+  password            String?
+  googleId            String? @db.VarChar(50)
+  facebookId          String? @db.VarChar(50)
   roles               Role[] @default(value: [USER])
 
-  comments            Comment[]
+  posts               Post[]
+  sessions            Session[]
+  tags                Tag[]
+  categories          Category[]
 
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
@@ -44,7 +65,9 @@ model Post {
 
   tags                PostTag[]
   categories          PostCategory[]
-  comments            Comment[]
+  
+  userId              Int @db.Integer()
+  user                User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   isPublished         Boolean?
   updatedAt           DateTime @updatedAt()
@@ -55,9 +78,9 @@ model Post {
 
 model PostTag {
   postId              Int @db.Integer()
-  post                Post @relation(fields: [postId], references: [id])
+  post                Post @relation(fields: [postId], references: [id], onDelete: Cascade)
   tagId               Int @db.Integer()
-  tag                 Tag @relation(fields: [tagId], references: [id])
+  tag                 Tag @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   updatedAt           DateTime @updatedAt()
   createdAt           DateTime @default(now())
@@ -69,9 +92,12 @@ model PostTag {
 model Tag {
   id                  Int @id @default(autoincrement())
   name                String @db.VarChar(50)
-  description         String
+  description         String?
 
   posts               PostTag[]
+
+  userId              Int @db.Integer()
+  user                User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   updatedAt           DateTime @updatedAt()
   createdAt           DateTime @default(now())
@@ -81,9 +107,9 @@ model Tag {
 
 model PostCategory {
   postId              Int @db.Integer()
-  post                Post @relation(fields: [postId], references: [id])
+  post                Post @relation(fields: [postId], references: [id], onDelete: Cascade)
   categoryId          Int @db.Integer()
-  category            Category @relation(fields: [categoryId], references: [id])
+  category            Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   updatedAt           DateTime @updatedAt()
   createdAt           DateTime @default(now())
@@ -95,31 +121,15 @@ model PostCategory {
 model Category {
   id                  Int @id @default(autoincrement())
   name                String @db.VarChar(50)
-  description         String
+  description         String?
 
   posts               PostCategory[]
+
+  userId              Int @db.Integer()
+  user                User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   updatedAt           DateTime @updatedAt()
   createdAt           DateTime @default(now())
 
   @@map("categories")
-}
-
-model Comment {
-  id                  Int @id @default(autoincrement())
-  commentContents     String
-
-  postId              Int @db.Integer()
-  post                Post @relation(fields: [postId], references: [id])
-  userId              Int @db.Integer()
-  user                User @relation(fields: [userId], references: [id])
-
-  parent_id           Int @db.Integer()
-  parent              Comment? @relation("CommentParentChilds", fields: [parent_id], references: [id])
-  childs              Comment[] @relation("CommentParentChilds")
-
-  updatedAt           DateTime @updatedAt()
-  createdAt           DateTime @default(now())
-
-  @@map("comments")
 }

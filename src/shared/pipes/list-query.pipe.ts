@@ -22,18 +22,21 @@ export default class ListQueryPipe {
     if (
       metadata.type !== 'custom' ||
       !this.needValidate(value, metadata.metatype) ||
-      !Object.keys(value.params.query?.field || {}).length
+      !Object.keys(value.params.query?.filters.field || {}).length
     ) {
       return value;
     }
 
     try {
-      const finalFieldQuery = instanceToInstance(value.params.query.field, {
-        excludeExtraneousValues: true,
-        exposeUnsetFields: false,
-      });
+      const finalFieldQuery = instanceToInstance(
+        value.params.query.filters.field,
+        {
+          excludeExtraneousValues: true,
+          exposeUnsetFields: false,
+        },
+      );
 
-      value.params.query.field = finalFieldQuery;
+      value.params.query.filters.field = finalFieldQuery;
 
       return value;
     } catch (error) {
