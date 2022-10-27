@@ -39,6 +39,7 @@ model User {
   phoneNumber         String?
   password            String?
   googleId            String? @db.VarChar(50)
+  facebookId          String? @db.VarChar(50)
   roles               Role[] @default(value: [USER])
 
   posts               Post[]

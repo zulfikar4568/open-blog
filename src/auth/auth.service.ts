@@ -6,7 +6,6 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { UserService } from '@/modules/users/user.service';
 import {
   BadRequestException,
-  ForbiddenException,
   NotFoundException,
   UnknownException,
 } from '@/shared/exceptions/common.exception';
@@ -74,44 +73,43 @@ export default class AuthService {
     return session;
   }
 
-  async loginWithGoogle(ctx: IContext): Promise<Session> {
+  async loginOAuth(
+    ctx: IContext,
+    mode: 'facebook' | 'google',
+  ): Promise<Session> {
     if (!ctx.user) {
       throw new BadRequestException({
         code: '401',
-        message: 'Failed login with google!',
+        message: `Failed login with ${mode}!`,
       });
     }
 
     const userCtx = ctx.user;
 
-    let userCheck = await this.userService.findByGoogleId(
-      ctx.user.googleId,
-      this.userService.includes(),
-    );
+    const userCheck =
+      mode === 'facebook'
+        ? await this.userService.findByFacebookId(
+            ctx.user.facebookId,
+            this.userService.includes(),
+          )
+        : await this.userService.findByGoogleId(
+            ctx.user.googleId,
+            this.userService.includes(),
+          );
+
     if (userCheck) {
       const { jwt, user } = await this.login(ctx, userCheck);
       return await this.createSession(ctx, user, jwt);
     }
 
-    userCheck = await this.userService.findByEmail(
-      ctx.user.email,
-      this.userService.includes(),
-    );
-
-    if (userCheck)
-      throw new ForbiddenException({
-        code: '403',
-        message:
-          'User already exists, but Google account was not connected to users account',
-      });
-
     try {
-      const userCreate = await this.userService.createGoogleUser({
+      const userCreate = await this.userService.createUser({
         email: userCtx.email,
         firstName: userCtx.firstName,
         lastName: userCtx.lastName,
-        googleId: userCtx.googleId,
+        facebookId: userCtx.facebookId,
         imageUrl: userCtx.imageUrl,
+        googleId: userCtx.googleId,
       });
 
       const { jwt, user } = await this.login(ctx, userCreate);

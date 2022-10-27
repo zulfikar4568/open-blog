@@ -8,9 +8,14 @@ export default Object.freeze({
   ADMIN_PASS: env.get('ADMIN_PASS').required().asString(),
   ADMIN_EMAIL: env.get('ADMIN_EMAIL').required().asString(),
   ADMIN_CONTACT: env.get('ADMIN_CONTACT').required().asString(),
-  CLIENT_ID: env.get('CLIENT_ID').required().asString(),
-  CLIENT_SECRET: env.get('CLIENT_SECRET').required().asString(),
-  CALLBACK_URL: env.get('CALLBACK_URL').required().asUrlString(),
+
+  GOOGLE_CLIENT_ID: env.get('GOOGLE_CLIENT_ID').required().asString(),
+  GOOGLE_CLIENT_SECRET: env.get('GOOGLE_CLIENT_SECRET').required().asString(),
+  GOOGLE_CALLBACK_URL: env.get('GOOGLE_CALLBACK_URL').required().asUrlString(),
+
+  FB_CLIENT_ID: env.get('FB_CLIENT_ID').required().asString(),
+  FB_CLIENT_SECRET: env.get('FB_CLIENT_SECRET').required().asString(),
+  FB_CALLBACK_URL: env.get('FB_CALLBACK_URL').required().asUrlString(),
 
   JWT_SECRET: env.get('JWT_SECRET').required().asString(),
   ECRYPTED_SECRET: env.get('ECRYPTED_SECRET').required().asString(),

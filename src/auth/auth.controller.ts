@@ -20,11 +20,27 @@ import CookieAuthentication from '@/shared/decorators/cookie-auth.decorator';
 import User from '@/shared/decorators/user.decorator';
 import { TUserCompact } from '@/shared/types/user.type';
 import Serializer from '@/shared/decorators/serializer.decorator';
+import AuthFacebook from '@/shared/decorators/facebook-auth.decorator';
 
 @ApiTags('Auth')
 @Controller('auth')
 export default class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Get('facebook/login')
+  @AuthFacebook()
+  facebookLogin() {
+    // Only placeholder for login Facebook
+  }
+
+  @Get('facebook/redirect')
+  @AuthFacebook()
+  @CookieAuthentication('login')
+  @Serializer(SessionResponse)
+  async signInWithFacebookRedirect(@Context() ctx: IContext) {
+    const result = await this.authService.loginOAuth(ctx, 'facebook');
+    return new SuccessResponse('Login Successfully!', result);
+  }
 
   @Get('google/login')
   @AuthGoogle()
@@ -37,11 +53,11 @@ export default class AuthController {
   @CookieAuthentication('login')
   @Serializer(SessionResponse)
   async signInWithGoogleRedirect(@Context() ctx: IContext) {
-    const result = await this.authService.loginWithGoogle(ctx);
+    const result = await this.authService.loginOAuth(ctx, 'google');
     return new SuccessResponse('Login Successfully!', result);
   }
 
-  @Post('local')
+  @Post('local/login')
   @Authentication(true)
   @CookieAuthentication('login')
   @Serializer(SessionResponse)

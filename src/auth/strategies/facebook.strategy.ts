@@ -1,14 +1,21 @@
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy, VerifyCallback } from 'passport-google-oauth20';
+import { Strategy } from 'passport-facebook';
 import appConstant from '@/constants/app.constant';
 
-export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
+export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
   constructor() {
     super({
-      clientID: appConstant.GOOGLE_CLIENT_ID,
-      clientSecret: appConstant.GOOGLE_CLIENT_SECRET,
-      callbackURL: appConstant.GOOGLE_CALLBACK_URL,
-      scope: ['profile', 'email'],
+      clientID: appConstant.FB_CLIENT_ID,
+      clientSecret: appConstant.FB_CLIENT_SECRET,
+      callbackURL: appConstant.FB_CALLBACK_URL,
+      profileFields: [
+        'id',
+        'displayName',
+        'photos',
+        'email',
+        'last_name',
+        'first_name',
+      ],
     });
   }
 
@@ -16,7 +23,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     accessToken: string,
     refreshToken: string,
     profile: any,
-    done: VerifyCallback,
+    done: (err: any, user: any, info?: any) => void,
   ) {
     const { id, name, emails, photos } = profile;
     const user = {
@@ -24,7 +31,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       firstName: name.givenName,
       lastName: name.familyName,
       imageUrl: photos[0].value,
-      googleId: id,
+      facebookId: id,
       accessToken,
       refreshToken,
     };

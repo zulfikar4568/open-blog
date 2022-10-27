@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
-import { ICreateGoogleUserRequest } from './requests/create-user.request';
+import { ICreateUserRequest } from './requests/create-user.request';
 import { PrismaService } from '@/prisma/prisma.service';
 import { TUserFull } from '@/shared/types/user.type';
 import log from '@/shared/utils/log.util';
@@ -11,17 +11,13 @@ import { UnknownException } from '@/shared/exceptions/common.exception';
 export class UserService {
   constructor(private readonly db: PrismaService) {}
 
-  public async createGoogleUser(
-    body: ICreateGoogleUserRequest,
-  ): Promise<TUserFull> {
+  public async createUser(body: ICreateUserRequest): Promise<TUserFull> {
     try {
-      const user = await this.db.user.create({
-        data: {
+      const user = await this.db.user.upsert({
+        create: body,
+        update: body,
+        where: {
           email: body.email,
-          firstName: body.firstName,
-          lastName: body.lastName,
-          googleId: body.googleId,
-          imageUrl: body.imageUrl,
         },
         include: this.includes(),
       });
@@ -61,6 +57,20 @@ export class UserService {
     const result = await this.db.user.findFirst({
       where: {
         googleId: googleId,
+      },
+      include,
+    });
+
+    return result as TUserFull;
+  }
+
+  public async findByFacebookId(
+    facebookId: string,
+    include: Prisma.UserInclude,
+  ): Promise<TUserFull | null> {
+    const result = await this.db.user.findFirst({
+      where: {
+        facebookId: facebookId,
       },
       include,
     });
