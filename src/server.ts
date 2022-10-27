@@ -77,10 +77,17 @@ const httpServer = new Promise(async (resolve, reject) => {
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('/api/blog', app, document, option);
 
+    const port = process.env.PORT ?? appConstant.APP_PORT;
+    const host = process.env.HOST || '0.0.0.0';
+
     await app
-      .listen(appConstant.APP_PORT)
+      .listen(port, host)
       .then(() =>
-        log.info(`Nest app http started at PORT: ${appConstant.APP_PORT}`),
+        log.info(
+          `Nest app http started at PORT: ${
+            process.env.PORT ?? appConstant.APP_PORT
+          }`,
+        ),
       );
 
     resolve(true);
