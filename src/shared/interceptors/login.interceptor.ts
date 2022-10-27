@@ -14,14 +14,14 @@ export class LoginInterceptor implements NestInterceptor {
         const result = data.result;
         response.cookie('access-token', result.token, {
           expires: generateExpireJWT(),
-          sameSite: 'strict',
+          sameSite: 'lax',
           httpOnly: true,
           secure: true,
         });
 
         response.cookie('refresh-token', result.refresh, {
           expires: generateExpiredDate(),
-          sameSite: 'strict',
+          sameSite: 'lax',
           httpOnly: true,
           secure: true,
         });

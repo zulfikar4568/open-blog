@@ -44,7 +44,6 @@ export default class CategoryController {
     return new SuccessResponse('All categories listed successfully!', result);
   }
 
-  @ApiBearerAuth('access-token')
   @Get('/:id')
   @HttpCode(HttpStatus.OK)
   @Serializer(GetCategoryResponse)
