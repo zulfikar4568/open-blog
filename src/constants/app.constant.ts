@@ -17,6 +17,8 @@ export default Object.freeze({
   FB_CLIENT_SECRET: env.get('FB_CLIENT_SECRET').required().asString(),
   FB_CALLBACK_URL: env.get('FB_CALLBACK_URL').required().asUrlString(),
 
+  SAME_SITE: env.get('SAME_SITE').default('strict').asString(),
+
   JWT_SECRET: env.get('JWT_SECRET').required().asString(),
   ECRYPTED_SECRET: env.get('ECRYPTED_SECRET').required().asString(),
   JWT_EXPIRES_IN: env.get('JWT_EXPIRES_IN').default('3d').asString(),

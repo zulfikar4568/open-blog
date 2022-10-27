@@ -2,6 +2,7 @@ import { CallHandler, ExecutionContext, NestInterceptor } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
 import SuccessResponse from '../responses/success.response';
 import { generateExpiredDate, generateExpireJWT } from '../utils/jwt.util';
+import appConstant from '@/constants/app.constant';
 
 export class LoginInterceptor implements NestInterceptor {
   intercept(
@@ -14,14 +15,14 @@ export class LoginInterceptor implements NestInterceptor {
         const result = data.result;
         response.cookie('access-token', result.token, {
           expires: generateExpireJWT(),
-          sameSite: 'lax',
+          sameSite: appConstant.SAME_SITE,
           httpOnly: true,
           secure: true,
         });
 
         response.cookie('refresh-token', result.refresh, {
           expires: generateExpiredDate(),
-          sameSite: 'lax',
+          sameSite: appConstant.SAME_SITE,
           httpOnly: true,
           secure: true,
         });
