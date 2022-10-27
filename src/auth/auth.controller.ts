@@ -11,6 +11,7 @@ import AuthService from './auth.service';
 import { LoginLocalBodyValidator } from './validators/login-local.validator';
 import RefreshSessionResponse from './serializers/refresh-session.response';
 import SessionResponse from './serializers/session.response';
+import { RegisterBodyValidator } from './validators/register.local.validator';
 import Authentication from '@/shared/decorators/authentication.decorator';
 import Context from '@/shared/decorators/context.decorator';
 import { IContext } from '@/shared/interceptors/context.interceptor';
@@ -70,6 +71,18 @@ export default class AuthController {
       password: body.password,
     });
     return new SuccessResponse('Login Successfully!', result);
+  }
+
+  @Post('local/register')
+  @Authentication(true)
+  @CookieAuthentication('login')
+  @Serializer(SessionResponse)
+  async register(
+    @Context() ctx: IContext,
+    @Body() body: RegisterBodyValidator,
+  ) {
+    const result = await this.authService.registerAccount(ctx, body);
+    return new SuccessResponse('Register Successfully!', result);
   }
 
   @ApiBearerAuth('access-token')

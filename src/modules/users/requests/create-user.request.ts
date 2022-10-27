@@ -5,4 +5,7 @@ export interface ICreateUserRequest {
   imageUrl?: string;
   googleId?: string;
   facebookId?: string;
+  phoneNumber?: string;
+
+  password?: string;
 }

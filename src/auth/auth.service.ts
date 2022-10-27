@@ -3,16 +3,18 @@ import { Session } from '@prisma/client';
 import { instanceToPlain } from 'class-transformer';
 import dayjs from 'dayjs';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { IRegisterRequestBody } from './requests/register-local.request';
 import { UserService } from '@/modules/users/user.service';
 import {
   BadRequestException,
   NotFoundException,
+  UnauthorizedException,
   UnknownException,
 } from '@/shared/exceptions/common.exception';
 import { IContext } from '@/shared/interceptors/context.interceptor';
 import { TUserCompact, TUserFull } from '@/shared/types/user.type';
 import { generateJwt, IGeneratedJwt } from '@/shared/utils/jwt.util';
-import { checkPassword } from '@/shared/utils/password.util';
+import { checkPassword, generatePassword } from '@/shared/utils/password.util';
 import { transformUserToCompact } from '@/shared/utils/user.util';
 import { PrismaService } from '@/prisma/prisma.service';
 import log from '@/shared/utils/log.util';
@@ -71,6 +73,46 @@ export default class AuthService {
     });
 
     return session;
+  }
+
+  async registerAccount(
+    ctx: IContext,
+    body: IRegisterRequestBody,
+  ): Promise<Session> {
+    const checkUser = await this.userService.findByEmail(
+      body.email,
+      this.userService.includes(),
+    );
+
+    if (checkUser) {
+      if (checkUser.password) {
+        throw new UnauthorizedException({
+          code: '401',
+          message: 'User already exists!',
+          params: {
+            email: body.email,
+          },
+        });
+      }
+    }
+
+    if (body.password !== body.confirmPassword) {
+      throw new BadRequestException({
+        code: '401',
+        message: 'Password missmatch!',
+      });
+    }
+
+    const userUpdate = await this.userService.createUser({
+      email: body.email,
+      firstName: body.firstName,
+      lastName: body.lastName,
+      phoneNumber: body.phoneNumber,
+      password: await generatePassword(body.password),
+    });
+
+    const { jwt, user } = await this.login(ctx, userUpdate);
+    return await this.createSession(ctx, user, jwt);
   }
 
   async loginOAuth(
@@ -146,7 +188,7 @@ export default class AuthService {
     if (!isMatch) {
       throw new BadRequestException({
         code: '401',
-        message: 'Password miss match!',
+        message: 'Wrong Password!',
       });
     }
 
