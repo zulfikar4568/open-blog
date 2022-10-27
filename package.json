@@ -19,9 +19,10 @@
     "prisma:sync": "npx prisma generate --schema './database/schema.prisma'",
     "db:seed": "ts-node ./database/seeds/seed.ts",
     "prepare": "husky install",
-    "prisma:prod:deploy": "prisma migrate deploy --schema './database/schema.prisma'",
+    "prisma:prod:deploy": "npx prisma migrate deploy --schema './database/schema.prisma'",
     "prestart:prod": "npm run prisma:prod:deploy",
-    "start:prod": "node .build/server"
+    "start:prod": "node .build/server",
+    "start-only:prod": "node .build/server"
   },
   "dependencies": {
     "@nestjs/common": "^8.0.0",

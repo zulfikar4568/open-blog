@@ -52,9 +52,9 @@ const httpServer = new Promise(async (resolve, reject) => {
     app.use(cookieParser());
     const option = {
       customCss: `
-      .topbar-wrapper img {content:url('/api/zulfikar/public/zulfikar.svg'); width:200px; height:auto;}
+      .topbar-wrapper img {content:url('https://svgshare.com/i/nhr.svg'); width:200px; height:auto;}
       .swagger-ui .topbar { background: linear-gradient(-45deg, rgba(245,0,130,1) 11%, rgba(0,94,210,1) 100%); }`,
-      customfavIcon: `/api/zulfikar/public/zulfikar.svg`,
+      customfavIcon: `https://svgshare.com/i/nhr.svg`,
       customSiteTitle: 'Blog Zulfikar Documentation Services',
     };
     const config = new DocumentBuilder()
