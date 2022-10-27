@@ -1,7 +1,7 @@
 import { CallHandler, ExecutionContext, NestInterceptor } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
 import SuccessResponse from '../responses/success.response';
-import { generateExpiredDate } from '../utils/jwt.util';
+import { generateExpiredDate, generateExpireJWT } from '../utils/jwt.util';
 
 export class LoginInterceptor implements NestInterceptor {
   intercept(
@@ -13,13 +13,14 @@ export class LoginInterceptor implements NestInterceptor {
         const response = context.switchToHttp().getResponse();
         const result = data.result;
         response.cookie('access-token', result.token, {
-          expires: generateExpiredDate(),
+          expires: generateExpireJWT(),
           sameSite: 'strict',
           httpOnly: true,
           secure: true,
         });
 
         response.cookie('refresh-token', result.refresh, {
+          expires: generateExpiredDate(),
           sameSite: 'strict',
           httpOnly: true,
           secure: true,

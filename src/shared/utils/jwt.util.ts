@@ -37,6 +37,12 @@ export const generateExpiredDate = (): Date => {
   return new Date(Date.now() + ms(expIn));
 };
 
+export const generateExpireJWT = (): Date => {
+  const expIn = appConstant.JWT_EXPIRES_IN;
+
+  return new Date(Date.now() + ms(expIn));
+};
+
 export const generateJwt = async ({
   origin,
   userId,

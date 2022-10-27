@@ -59,7 +59,6 @@ export default class AuthController {
   }
 
   @Post('local/login')
-  @Authentication(true)
   @CookieAuthentication('login')
   @Serializer(SessionResponse)
   async signInWithLocal(
@@ -74,7 +73,6 @@ export default class AuthController {
   }
 
   @Post('local/register')
-  @Authentication(true)
   @CookieAuthentication('login')
   @Serializer(SessionResponse)
   async register(
